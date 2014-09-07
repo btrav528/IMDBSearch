@@ -11,8 +11,8 @@ if (!empty($_POST['year'])) {
 	
 	$sql = ("SELECT * FROM `top250` WHERE Year=" . $_POST['year']);
 	$filename=md5($sql);
-	if(file_exists ( $filename)){
-		$result=file_get_contents($filename);
+	if(file_exists ( "cache/".$filename)){
+		$result=file_get_contents("cache/".$filename);
 		$out = explode("<!-- E -->", $result);
 		//while($count<=9||$result!=false){
 		//$result=unserialize($result);
@@ -45,7 +45,7 @@ if (!empty($_POST['year'])) {
 		array_merge ($row, $data);
 		var_dump($data);
 		$serializedData = serialize($row);
-		file_put_contents($cacheFilename, $serializedData."<!-- E -->", FILE_APPEND);
+		file_put_contents("cache/".$cacheFilename, $serializedData."<!-- E -->", FILE_APPEND);
 		echo "<tr><td>" . $row['Rank'] . "</td><td>" . $row['Title'] . "</td><td>" . $row['Year'] . "</td><td>" . $row['number_of_votes'] . "</td><td>" . $row['Rating'] . "</td></tr>";
 
 	}
@@ -56,6 +56,7 @@ if (!empty($_POST['year'])) {
 	}
 else {
 	$conn = GetConnection();
+	
 	$sql = ("SELECT * FROM `top250` WHERE Rank <=10");
 	$result = mysqli_query($conn, $sql);
 	echo "<table class='table' border='1'><th>Rank</th><th>Title</th><th>Year</th><th>Number of votes</th><th>Rating</th>";

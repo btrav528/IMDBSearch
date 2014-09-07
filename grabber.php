@@ -87,6 +87,8 @@ ENGINE = InnoDB");
 
 }
 
+
+
 $imdb = new imdb();
 
 $list = $imdb -> getTop250();
