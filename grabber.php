@@ -28,7 +28,7 @@ ENGINE = InnoDB");
 		if ($error) {
 			return array('db_error' => $error);
 		} else {
-			echo("all good ");
+
 		}
 
 		$conn -> query("TRUNCATE TABLE top250");
@@ -45,13 +45,11 @@ ENGINE = InnoDB");
 			$rank = $temp['rank'];
 			$rating = $temp['rating'];
 			$number_of_votes = $temp['number_of_votes'];
-			var_dump($number_of_votes);
 			$year = $temp['year'];
 
 			$conn -> query("INSERT INTO `top250`(`Title`, `Year`, `Rank`, `number_of_votes`, `Rating`) VALUES ('$title','$year','$rank','$number_of_votes','$rating')");
 			$count++;
 		}
-		echo mysqli_info($conn);
 	}
 
 	private function match_all($regex, $str, $i = 0) {
@@ -87,15 +85,16 @@ ENGINE = InnoDB");
 
 }
 
-
+if (!file_exists("cache")) {
+	mkdir("cache");
+}
 
 $imdb = new imdb();
 
 $list = $imdb -> getTop250();
 
-echo("made list");
-
 $imdb -> CreateTable();
-echo("made table ");
+
 $imdb -> insertToTable($list);
+echo "Transfer of list to database complete.";
 ?>

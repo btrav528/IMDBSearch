@@ -8,55 +8,44 @@ function GetConnection() {
 }
 
 if (!empty($_POST['year'])) {
-	
+
 	$sql = ("SELECT * FROM `top250` WHERE Year=" . $_POST['year']);
-	$filename=md5($sql);
-	if(file_exists ( "cache/".$filename)){
-		$result=file_get_contents("cache/".$filename);
+	$filename = md5($sql);
+	if (file_exists("cache/" . $filename)) {
+		$result = file_get_contents("cache/" . $filename);
 		$out = explode("<!-- E -->", $result);
-		//while($count<=9||$result!=false){
-		//$result=unserialize($result);
-		//var_dump($out);
-		$count=0;
+		$count = 0;
 		echo "<table class='table' border='1'><th>Rank</th><th>Title</th><th>Year</th><th>Number of votes</th><th>Rating</th>";
-		while($count<count($out)-1){
-			$row=unserialize($out[$count]);
+		while ($count < count($out) - 1) {
+			$row = unserialize($out[$count]);
 			echo "<tr><td>" . $row['Rank'] . "</td><td>" . $row['Title'] . "</td><td>" . $row['Year'] . "</td><td>" . $row['number_of_votes'] . "</td><td>" . $row['Rating'] . "</td></tr>";
 
-		$count++;
+			$count++;
 		}
+	} else {
+
+		$conn = GetConnection();
+
+		$result = mysqli_query($conn, $sql);
+
+		echo "<table class='table' border='1'><th>Rank</th><th>Title</th><th>Year</th><th>Number of votes</th><th>Rating</th>";
+
+		$cacheFilename = md5($sql);
+
+		$data = array();
+		while ($row = mysqli_fetch_array($result)) {
+			array_merge($row, $data);
+			$serializedData = serialize($row);
+			file_put_contents("cache/" . $cacheFilename, $serializedData . "<!-- E -->", FILE_APPEND);
+			echo "<tr><td>" . $row['Rank'] . "</td><td>" . $row['Title'] . "</td><td>" . $row['Year'] . "</td><td>" . $row['number_of_votes'] . "</td><td>" . $row['Rating'] . "</td></tr>";
+
 		}
-		
-		
-	else{
-
-	$conn = GetConnection();
-	
-	$result = mysqli_query($conn, $sql);
-
-	echo "<table class='table' border='1'><th>Rank</th><th>Title</th><th>Year</th><th>Number of votes</th><th>Rating</th>";
-	
-	
-	$cacheFilename = md5($sql);
-	
-	
-	$data=array();
-	while ($row = mysqli_fetch_array($result)) {
-		array_merge ($row, $data);
-		var_dump($data);
-		$serializedData = serialize($row);
-		file_put_contents("cache/".$cacheFilename, $serializedData."<!-- E -->", FILE_APPEND);
-		echo "<tr><td>" . $row['Rank'] . "</td><td>" . $row['Title'] . "</td><td>" . $row['Year'] . "</td><td>" . $row['number_of_votes'] . "</td><td>" . $row['Rating'] . "</td></tr>";
-
-	}
-
 
 		mysqli_close($conn);
-		}
 	}
-else {
+} else {
 	$conn = GetConnection();
-	
+
 	$sql = ("SELECT * FROM `top250` WHERE Rank <=10");
 	$result = mysqli_query($conn, $sql);
 	echo "<table class='table' border='1'><th>Rank</th><th>Title</th><th>Year</th><th>Number of votes</th><th>Rating</th>";
@@ -68,7 +57,6 @@ else {
 
 	mysqli_close($conn);
 }
-
 ?>
 <html>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -80,7 +68,7 @@ else {
 		<form action="index.php" method="post">
 			Year:
 			<input type="text" name="year">
-			<br>
+			
 			<input type="submit">
 		</form>
 		
