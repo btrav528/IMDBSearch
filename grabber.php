@@ -17,11 +17,11 @@ class imdb {
 		$conn -> query("CREATE TABLE IF NOT EXISTS `imdb`.`top250` (
   `Rank` INT NOT NULL AUTO_INCREMENT,
   `Title` VARCHAR(99) NOT NULL,
-  `Year` VARCHAR(45) NOT NULL,
+  `date` DATE NOT NULL,
   `number_of_votes` INT NOT NULL,
   `Rating` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`Rank`))
-ENGINE = InnoDB");
+  	PRIMARY KEY (`Rank`))
+	ENGINE = InnoDB");
 
 		$error = $conn -> error;
 
@@ -45,9 +45,9 @@ ENGINE = InnoDB");
 			$rank = $temp['rank'];
 			$rating = $temp['rating'];
 			$number_of_votes = $temp['number_of_votes'];
-			$year = $temp['year'];
+			$date = $temp['date'];
 
-			$conn -> query("INSERT INTO `top250`(`Title`, `Year`, `Rank`, `number_of_votes`, `Rating`) VALUES ('$title','$year','$rank','$number_of_votes','$rating')");
+			$conn -> query("INSERT INTO `top250`(`Title`, `date`, `Rank`, `number_of_votes`, `Rating`) VALUES ('$title','$date','$rank','$number_of_votes','$rating')");
 			$count++;
 		}
 	}
@@ -73,11 +73,10 @@ ENGINE = InnoDB");
 		foreach ($this->match_all('/<tr class="(even|odd)">(.*?)<\/tr>/ms', $html, 2) as $m) {
 
 			$title = $this -> match('/<td class="titleColumn">.*?<a.*?>(.*?)<\/a>/msi', $m, 1);
-			$year = $this -> match('/<td class="titleColumn">.*?<span name="rd".*?>\((.*?)\)<\/span>/msi', $m, 1);
+			$date = $this -> match('/<td class="titleColumn">.*?<span name="rd" data-value="(.*?)"/msi', $m, 1);
 			$number_of_votes = $this -> match('/<strong name="nv" data-value="(.*?)"/msi', $m, 1);
 			$rating = $this -> match('/<strong name=".*?" data-value=".*?">(.*?)<\/strong>/msi', $m, 1);
-
-			$top250[] = array("rank" => $rank, "title" => $title, "year" => $year, "rating" => $rating, "number_of_votes" => $number_of_votes);
+			$top250[] = array("rank" => $rank, "title" => $title, "date" => $date, "rating" => $rating, "number_of_votes" => $number_of_votes);
 			$rank++;
 		}
 		return $top250;
@@ -96,5 +95,5 @@ $list = $imdb -> getTop250();
 $imdb -> CreateTable();
 
 $imdb -> insertToTable($list);
-echo "Transfer of list to database complete.";
+header("Location: index.php");
 ?>
